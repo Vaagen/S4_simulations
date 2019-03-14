@@ -1,13 +1,14 @@
 #!/bin/sh
 #SBATCH --partition=WORKQ
-#SBATCH --time=00:01:00
+#SBATCH --time=00:10:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
+#SBATCH --mem=1000
 #SBATCH --job-name="run_test"
-#SBATCH --output=output/test-srun-%A_%a.out
+#SBATCH --output="output/test-srun-%A_%a.out"
 #SBATCH --mail-user=pcthrane@stud.ntnu.no
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-9%4
+#SBATCH --array=0-10%4
  
 WORKDIR=${SLURM_SUBMIT_DIR}
 cd ${WORKDIR}
@@ -19,15 +20,14 @@ echo "Cores per node: $SLURM_CPUS_ON_NODE"
 echo "Total number of cores: $SLURM_NTASKS"
 echo "The job was run on these nodes: $SLURM_JOB_NODELIST"
 echo "The job ID is: $SLURM_JOB_ID"
+
+export OPENBLAS_NUM_THREADS=1
  
 module purge
 module load foss/2016a
 module load Python/3.5.1
-source ../pythonenvs/S4_environment/bin/activate
+source /lustre1/work/pcthrane/pythonenvs/S4_environment/bin/activate
 
 #Run script
-time srun python job_test.py -p 10 -n $SLURM_ARRAY_TASK_ID
-
-
-#deactivate
-#module purge
+time srun python job.py -p 10 -n $SLURM_ARRAY_TASK_ID
+#time srun python job.py -p 1 -n 0
