@@ -76,4 +76,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
     tot_num_processes = int(args.processes)
     process_num = int(args.process_number)
+    print("Python job.py called with -p ", tot_num_processes, " -n ", process_num)
     main(tot_num_processes=tot_num_processes, process_num=process_num)
