@@ -14,7 +14,7 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     # Wavelength
     wl = 0.915
     # Height of pillar
-    z_Pillar = 0.715
+    z_Pillar = 0.300
     # Pillar orientation
     theta = 0.0 # Degrees
     # Epsilon
@@ -31,10 +31,10 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     ################################## Geometries
     x_steps = x_steps
     y_steps = y_steps
-    x_start = 0.130 #0.1 #0.05
-    y_start = 0.390 #0.2 #0.05
-    x_stop  = 0.130 #0.1 #0.44 #0.4
-    y_stop  = 0.390 #0.2 #0.44 #0.4
+    x_start = 0.065 #0.05
+    y_start = 0.065 #0.2 #0.05
+    x_stop  = 0.440 #0.1 #0.44 #0.4
+    y_stop  = 0.440 #0.2 #0.44 #0.4
     ################################## Unit cell
     # Size of cell
     a = 0.65 #0.48
@@ -52,12 +52,12 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     x_mesh = np.ndarray.flatten(x_mesh)
     y_mesh = np.ndarray.flatten(y_mesh)
 
-    # For using th mesh of x and y
-    Dx_values = x_mesh
-    Dy_values = y_mesh
+    # For using the mesh of x and y
+    # Dx_values = x_mesh
+    # Dy_values = y_mesh
     # For using each x/y value once
-    # Dx_values = x_values
-    # Dy_values = y_values
+    Dx_values = x_values
+    Dy_values = y_values
 
     df = pd.DataFrame(data={'NumBasis':NumBasis, 'Dx':Dx_values, 'Dy':Dy_values, 'z_Pillar':z_Pillar,
         'theta':theta,'wl':wl,'a':a,'b':b,'angle_basis_vectors':angle_basis_vectors,'angle_shift_basis':angle_shift_basis,
@@ -68,24 +68,18 @@ def setup_simulation(NumBasis, x_steps, y_steps):
         'phi_tss_0':np.nan})
     return df
 
-def run_sim(df, indexes=np.array([])):
-    '''
-    Run simulation for a set of different Dx, Dy, note that all other
-    parameters are assumed to stay constant.
-    Indexes indicates which simulations should be done, helps for parallelizing.
-    '''
-    if indexes.size == 0:
-        indexes = range(df.index.size)
-    ####################### Setup unit cell.
-    a1 = [df.iloc[0, df.columns.get_loc('a')],0]
-    a2 = [df.iloc[0, df.columns.get_loc('b')]*np.cos(df.iloc[0, df.columns.get_loc('angle_basis_vectors')]), df.iloc[0, df.columns.get_loc('b')]*np.sin(df.iloc[0, df.columns.get_loc('angle_basis_vectors')])]
+def setup_s4_instance(df, index):
+    i = index
+    ###################### Setup unit cell.
+    a1 = [df.iloc[i, df.columns.get_loc('a')],0]
+    a2 = [df.iloc[i, df.columns.get_loc('b')]*np.cos(df.iloc[i, df.columns.get_loc('angle_basis_vectors')]), df.iloc[i, df.columns.get_loc('b')]*np.sin(df.iloc[i, df.columns.get_loc('angle_basis_vectors')])]
     b1 = [0,0]
     b2 = [0,0]
-    b1[0] = np.cos(df.iloc[0, df.columns.get_loc('angle_shift_basis')])*a1[0] - np.sin(df.iloc[0, df.columns.get_loc('angle_shift_basis')])*a1[1]
-    b1[1] = np.cos(df.iloc[0, df.columns.get_loc('angle_shift_basis')])*a1[1] + np.sin(df.iloc[0, df.columns.get_loc('angle_shift_basis')])*a1[0]
-    b2[0] = np.cos(df.iloc[0, df.columns.get_loc('angle_shift_basis')])*a2[0] - np.sin(df.iloc[0, df.columns.get_loc('angle_shift_basis')])*a2[1]
-    b2[1] = np.cos(df.iloc[0, df.columns.get_loc('angle_shift_basis')])*a2[1] + np.sin(df.iloc[0, df.columns.get_loc('angle_shift_basis')])*a2[0]
-    S = S4.New(Lattice=((b1[0],b1[1]),(b2[0],b2[1])), NumBasis=int(df.iloc[0, df.columns.get_loc('NumBasis')]))
+    b1[0] = np.cos(df.iloc[i, df.columns.get_loc('angle_shift_basis')])*a1[0] - np.sin(df.iloc[i, df.columns.get_loc('angle_shift_basis')])*a1[1]
+    b1[1] = np.cos(df.iloc[i, df.columns.get_loc('angle_shift_basis')])*a1[1] + np.sin(df.iloc[i, df.columns.get_loc('angle_shift_basis')])*a1[0]
+    b2[0] = np.cos(df.iloc[i, df.columns.get_loc('angle_shift_basis')])*a2[0] - np.sin(df.iloc[i, df.columns.get_loc('angle_shift_basis')])*a2[1]
+    b2[1] = np.cos(df.iloc[i, df.columns.get_loc('angle_shift_basis')])*a2[1] + np.sin(df.iloc[i, df.columns.get_loc('angle_shift_basis')])*a2[0]
+    S = S4.New(Lattice=((b1[0],b1[1]),(b2[0],b2[1])), NumBasis=int(df.iloc[i, df.columns.get_loc('NumBasis')]))
     ####################### Options
     S.SetOptions(
         Verbosity = 0,
@@ -100,24 +94,36 @@ def run_sim(df, indexes=np.array([])):
     )
     ####################### Setup material and exitation.
     S.SetMaterial( Name='Air', Epsilon=1)
-    S.SetMaterial( Name='a_Si', Epsilon=df.iloc[0, df.columns.get_loc('epsilon_a_Si')])
-    S.SetMaterial( Name='fused_SiO2', Epsilon=df.iloc[0, df.columns.get_loc('epsilon_fused_SiO2')])
+    S.SetMaterial( Name='a_Si', Epsilon=df.iloc[i, df.columns.get_loc('epsilon_a_Si')])
+    S.SetMaterial( Name='fused_SiO2', Epsilon=df.iloc[i, df.columns.get_loc('epsilon_fused_SiO2')])
     # Front illuminated: Illuminated from air
     # S.AddLayer(Name = 'AirAbove', Thickness = 0, Material = 'Air')
-    # S.AddLayer(Name = 'MetaLayer', Thickness = df.iloc[0, df.columns.get_loc('z_Pillar')], Material = 'Air')
+    # S.AddLayer(Name = 'MetaLayer', Thickness = df.iloc[i, df.columns.get_loc('z_Pillar')], Material = 'Air')
     # S.AddLayer(Name = 'Substrate', Thickness = 0, Material = 'fused_SiO2')
     # Back illuminated: Illuminated from substrate
     S.AddLayer(Name = 'Substrate', Thickness = 0, Material = 'fused_SiO2')
-    S.AddLayer(Name = 'MetaLayer', Thickness = df.iloc[0, df.columns.get_loc('z_Pillar')], Material = 'Air')
+    S.AddLayer(Name = 'MetaLayer', Thickness = df.iloc[i, df.columns.get_loc('z_Pillar')], Material = 'Air')
     S.AddLayer(Name = 'AirAbove', Thickness = 0, Material = 'Air')
     #
-    S.SetExcitationPlanewave(IncidenceAngles=(df.iloc[0, df.columns.get_loc('theta_incidence')],df.iloc[0, df.columns.get_loc('phi_incidence')]),
-        sAmplitude=df.iloc[0, df.columns.get_loc('sAmplitude')], pAmplitude=df.iloc[0, df.columns.get_loc('pAmplitude')], Order=0)
-    S.SetFrequency(1/df.iloc[0, df.columns.get_loc('wl')])
-    Glist = S.GetBasisSet()
-    num_modes = len(Glist)
+    S.SetExcitationPlanewave(IncidenceAngles=(df.iloc[i, df.columns.get_loc('theta_incidence')],df.iloc[i, df.columns.get_loc('phi_incidence')]),
+        sAmplitude=df.iloc[i, df.columns.get_loc('sAmplitude')], pAmplitude=df.iloc[i, df.columns.get_loc('pAmplitude')], Order=0)
+    S.SetFrequency(1/df.iloc[i, df.columns.get_loc('wl')])
+    return S
+
+def run_sim(df, indexes=np.array([])):
+    '''
+    Run simulation for a set of different parameters.
+    If scanning over Dx, Dy, run_sim is more efficient.
+    Indexes indicates which simulations should be done, helps for parallelizing.
+    '''
+    if indexes.size == 0:
+        indexes = range(df.index.size)
     ####################### Calculation loop.
     for i in indexes:
+        S = setup_s4_instance(df,i)
+        Glist = S.GetBasisSet()
+        num_modes = len(Glist)
+        # Do calculation
         Dx = df.iloc[i, df.columns.get_loc('Dx')]
         Dy = df.iloc[i, df.columns.get_loc('Dy')]
         ###################################################################
@@ -125,18 +131,18 @@ def run_sim(df, indexes=np.array([])):
         S.SetRegionEllipse(Layer='MetaLayer', Material='a_Si', Center=(0,0), Angle=df.iloc[i,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
         # S.SetRegionRectangle(Layer='MetaLayer', Material='a_Si', Center=(0,0), Angle=df.iloc[i,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
 
-        epsilon_fused_SiO2 = df.iloc[0, df.columns.get_loc('epsilon_fused_SiO2')]
+        epsilon_fused_SiO2 = df.iloc[i, df.columns.get_loc('epsilon_fused_SiO2')]
 
         (forw_Amp_Substrate,back_Amp_Substrate) = S.GetAmplitudes(Layer = 'Substrate', zOffset = 0)
         (forw_Amp_Air,back_Amp_Air) = S.GetAmplitudes(Layer = 'AirAbove', zOffset = 0)
 
         # Front illuminated
-        # if np.abs(df.iloc[0,df.columns.get_loc('sAmplitude')])>1e-8:
+        # if np.abs(df.iloc[i,df.columns.get_loc('sAmplitude')])>1e-8:
         #     df.iloc[i, df.columns.get_loc('tss_0')] = np.abs(forw_Amp_Substrate[0]/np.sqrt(epsilon_fused_SiO2)/forw_Amp_Air[0])
         #     df.iloc[i, df.columns.get_loc('rss_0')] = np.abs(back_Amp_Air[0]/forw_Amp_Air[0])
         #     df.iloc[i, df.columns.get_loc('phi_tss_0')] = np.angle(forw_Amp_Air[0]/forw_Amp_Substrate[0]*np.sqrt(epsilon_fused_SiO2))
         # Back illuminated
-        if np.abs(df.iloc[0, df.columns.get_loc('sAmplitude')])>1e-8:
+        if np.abs(df.iloc[i, df.columns.get_loc('sAmplitude')])>1e-8:
             df.iloc[i, df.columns.get_loc('tss_0')] = np.abs(forw_Amp_Air[0]/forw_Amp_Substrate[0])
             df.iloc[i, df.columns.get_loc('rss_0')] = np.abs(back_Amp_Substrate[0]/forw_Amp_Substrate[0])
             df.iloc[i, df.columns.get_loc('phi_tss_0')] = np.angle(forw_Amp_Substrate[0]/np.sqrt(epsilon_fused_SiO2)/forw_Amp_Air[0])
