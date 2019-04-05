@@ -31,10 +31,10 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     ################################## Geometries
     x_steps = x_steps
     y_steps = y_steps
-    x_start = 0.13 #0.08 #0.065 #0.05
-    y_start = 0.39 #0.375 #0.065 #0.05
-    x_stop  = 0.13 #0.08 #0.065 #0.44 #0.4
-    y_stop  = 0.39 #0.375 #0.44 #0.4
+    x_start = 0.130 #0.1 #0.05
+    y_start = 0.390 #0.2 #0.05
+    x_stop  = 0.130 #0.1 #0.44 #0.4
+    y_stop  = 0.390 #0.2 #0.44 #0.4
     ################################## Unit cell
     # Size of cell
     a = 0.65 #0.48
@@ -52,7 +52,14 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     x_mesh = np.ndarray.flatten(x_mesh)
     y_mesh = np.ndarray.flatten(y_mesh)
 
-    df = pd.DataFrame(data={'NumBasis':NumBasis, 'Dx':x_mesh, 'Dy':y_mesh, 'z_Pillar':z_Pillar,
+    # For using th mesh of x and y
+    Dx_values = x_mesh
+    Dy_values = y_mesh
+    # For using each x/y value once
+    # Dx_values = x_values
+    # Dy_values = y_values
+
+    df = pd.DataFrame(data={'NumBasis':NumBasis, 'Dx':Dx_values, 'Dy':Dy_values, 'z_Pillar':z_Pillar,
         'theta':theta,'wl':wl,'a':a,'b':b,'angle_basis_vectors':angle_basis_vectors,'angle_shift_basis':angle_shift_basis,
         'epsilon_a_Si':epsilon_a_Si,'epsilon_fused_SiO2':epsilon_fused_SiO2,
         'sAmplitude':sAmplitude,'pAmplitude':pAmplitude,'theta_incidence':theta_incidence,'phi_incidence':phi_incidence,

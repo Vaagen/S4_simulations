@@ -61,18 +61,30 @@ def plot_fields(df, index, resolution, axis='y', value=0):
     Eabs = np.abs(E)
     Habs = np.abs(H)
 
-    fig, axs = plt.subplots(1, 3)
-    ax0 = axs[0]
-    ax1 = axs[1]
-    ax2 = axs[2]
+    fig, axs = plt.subplots(2, 3)
+    ax0 = axs[0,0]
+    ax1 = axs[0,1]
+    ax2 = axs[0,2]
+    ax3 = axs[1,0]
+    ax4 = axs[1,1]
+    ax5 = axs[1,2]
     Y0 = np.reshape(Eabs[:,0], (resolution,resolution))
     Y1 = np.reshape(Eabs[:,1], (resolution,resolution))
     Y2 = np.reshape(Eabs[:,2], (resolution,resolution))
+    Y3 = np.reshape(Habs[:,0], (resolution,resolution))
+    Y4 = np.reshape(Habs[:,1], (resolution,resolution))
+    Y5 = np.reshape(Habs[:,2], (resolution,resolution))
     c0 = ax0.pcolor(X, Z, Y0, cmap='RdBu_r',vmin=0,vmax=np.max(Eabs[:,0]))
     c1 = ax1.pcolor(X, Z, Y1, cmap='RdBu_r',vmin=0,vmax=np.max(Eabs[:,1]))
     c2 = ax2.pcolor(X, Z, Y2, cmap='RdBu_r',vmin=0,vmax=np.max(Eabs[:,2]))
+    c3 = ax3.pcolor(X, Z, Y3, cmap='RdBu_r',vmin=0,vmax=np.max(Habs[:,0]))
+    c4 = ax4.pcolor(X, Z, Y4, cmap='RdBu_r',vmin=0,vmax=np.max(Habs[:,1]))
+    c5 = ax5.pcolor(X, Z, Y5, cmap='RdBu_r',vmin=0,vmax=np.max(Habs[:,2]))
     fig.colorbar(c0, ax=ax0)
     fig.colorbar(c1, ax=ax1)
     fig.colorbar(c2, ax=ax2)
+    fig.colorbar(c3, ax=ax3)
+    fig.colorbar(c4, ax=ax4)
+    fig.colorbar(c5, ax=ax5)
     plt.show(block=False)
     input('Press enter to continue.')
