@@ -113,7 +113,6 @@ def setup_s4_instance(df, index):
 def run_sim(df, indexes=np.array([])):
     '''
     Run simulation for a set of different parameters.
-    If scanning over Dx, Dy, run_sim is more efficient.
     Indexes indicates which simulations should be done, helps for parallelizing.
     '''
     if indexes.size == 0:
