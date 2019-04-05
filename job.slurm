@@ -1,14 +1,14 @@
 #!/bin/sh
 #SBATCH --partition=WORKQ
-#SBATCH --time=00:10:00
+#SBATCH --time=04:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=1000
-#SBATCH --job-name="run_test"
-#SBATCH --output="output/test-srun-%A_%a.out"
+#SBATCH --job-name="S4_NB300"
+#SBATCH --output="output/arbabi_ellipse_NB300_76x76_h500/arbabi_ellipse_NB300_76x76_h500-%A_%a.out"
 #SBATCH --mail-user=pcthrane@stud.ntnu.no
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-10%4
+#SBATCH --array=0-9%5
  
 WORKDIR=${SLURM_SUBMIT_DIR}
 cd ${WORKDIR}
