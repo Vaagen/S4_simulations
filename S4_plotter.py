@@ -8,6 +8,8 @@ import pyqtgraph as pg
 import sys
 import matplotlib.pyplot as plt
 
+from S4_wrapper import get_fields
+
 def get_image_matrices(df, x_column, y_column, z_column):
     # Currently assumes square domain in x and y.
     data_m = df.loc[:,[x_column, y_column, z_column]].values
@@ -37,3 +39,40 @@ def plot_image_interpolate(df, x_column, y_column, z_column, cmap='RdBu_r',limit
     # Using matplotlib
     c = ax.pcolor(Xn,Yn, data_z1, cmap=cmap,vmin=limit[0],vmax=limit[1])
     fig.colorbar(c, ax=ax)
+
+def plot_fields(df, index, resolution, axis='y', value=0):
+    '''
+    NOTE: Currently only working for axis='y' and value = 0
+    Plot fields in cross section of unit cell for axis=value.
+    Uses the index row of df.
+    Plot becomes resolution^2 pixels large
+    '''
+    stepsize = 1/resolution
+    if axis=='y':
+        y = np.ones(resolution**2)*value
+        x,z = np.mgrid[-0.5:0.5:stepsize, 0:1:stepsize]
+        X,Z = np.mgrid[-0.5:0.5:stepsize, 0:1:stepsize]
+        x = np.ndarray.flatten(x)*df.iloc[index, df.columns.get_loc('a')]
+        z = np.ndarray.flatten(z)*df.iloc[index, df.columns.get_loc('z_Pillar')]*1.2
+    else:
+        return -1
+
+    E,H = get_fields(df, x,y,z, index=0)
+    Eabs = np.abs(E)
+    Habs = np.abs(H)
+
+    fig, axs = plt.subplots(1, 3)
+    ax0 = axs[0]
+    ax1 = axs[1]
+    ax2 = axs[2]
+    Y0 = np.reshape(Eabs[:,0], (resolution,resolution))
+    Y1 = np.reshape(Eabs[:,1], (resolution,resolution))
+    Y2 = np.reshape(Eabs[:,2], (resolution,resolution))
+    c0 = ax0.pcolor(X, Z, Y0, cmap='RdBu_r',vmin=0,vmax=np.max(Eabs[:,0]))
+    c1 = ax1.pcolor(X, Z, Y1, cmap='RdBu_r',vmin=0,vmax=np.max(Eabs[:,1]))
+    c2 = ax2.pcolor(X, Z, Y2, cmap='RdBu_r',vmin=0,vmax=np.max(Eabs[:,2]))
+    fig.colorbar(c0, ax=ax0)
+    fig.colorbar(c1, ax=ax1)
+    fig.colorbar(c2, ax=ax2)
+    plt.show(block=False)
+    input('Press enter to continue.')
