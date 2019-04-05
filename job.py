@@ -6,10 +6,8 @@ import argparse
 
 def main(tot_num_processes=1, process_num=1):
     pd.options.mode.chained_assignment = None  # default='warn'
-    output_filename = 'output/test'
+    output_filename = 'output/arbabi_ellipse_NB300_76x76_h500/arbabi_ellipse_NB300_76x76_h500'
     df = setup_simulation()
-    print(df.head())
-    print(df.tail())
     if(tot_num_processes == 1):
         df = run_sim(df)
         # df = run_sim_intermediate_output(df,indexes=None,divisions=10, output_filename=output_filename)
@@ -20,12 +18,12 @@ def main(tot_num_processes=1, process_num=1):
 
 def setup_simulation():
     # output_filename = 'output/arbabi_rectangle.h5'
-    NumBasis =100# Comp time ~ NumBasis^3, Memory used ~ NumBasis^2
+    NumBasis =300# Comp time ~ NumBasis^3, Memory used ~ NumBasis^2
     # Use length micrometers
     # Wavelength
     wl = 0.915
     # Height of pillar
-    z_Pillar = 0.715
+    z_Pillar = 0.500
     # Pillar orientation
     theta = 0.0 # Degrees
     # Epsilon
