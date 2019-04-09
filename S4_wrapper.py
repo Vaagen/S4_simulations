@@ -11,11 +11,12 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     # output_filename = 'output/arbabi_rectangle.h5'
     NumBasis =NumBasis# Comp time ~ NumBasis^3, Memory used ~ NumBasis^2
     # Use length micrometers
-    # Wavelength
+    ############# Wavelength ####
     wl = 0.915
     wl_start = 0.343
     wl_stop   = 0.743
     wl_steps = 10
+    #############################
     # Pillar orientation
     theta = 0.0 # Degrees
     # Epsilon
@@ -36,7 +37,7 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     y_start = 0.065 #0.2 #0.05
     x_stop  = 0.440 #0.1 #0.44 #0.4
     y_stop  = 0.440 #0.2 #0.44 #0.4
-    # Height of pillar
+    ############### Height of pillar #
     z_Pillar = 0.300
     z_Pillar_start = 0.1
     z_Pillar_stop   = 0.5
@@ -152,8 +153,8 @@ def run_sim(df, indexes=np.array([])):
         Dy = df.iloc[i, df.columns.get_loc('Dy')]
         ###################################################################
         S.RemoveLayerRegions(Layer='MetaLayer')
-        S.SetRegionEllipse(Layer='MetaLayer', Material='pillar', Center=(0,0), Angle=df.iloc[i,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
-        # S.SetRegionRectangle(Layer='MetaLayer', Material='pillar', Center=(0,0), Angle=df.iloc[i,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
+        # S.SetRegionEllipse(Layer='MetaLayer', Material='pillar', Center=(0,0), Angle=df.iloc[i,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
+        S.SetRegionRectangle(Layer='MetaLayer', Material='pillar', Center=(0,0), Angle=df.iloc[i,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
 
         epsilon_substrate = df.iloc[i, df.columns.get_loc('epsilon_substrate')]
 
@@ -212,7 +213,7 @@ def get_fields(df, x,y,z, index=0):
     )
     ####################### Setup material and exitation.
     S.SetMaterial( Name='Air', Epsilon=1)
-    S.SetMaterial( Name='a_Si', Epsilon=df.iloc[index, df.columns.get_loc('epsilon_a_Si')])
+    S.SetMaterial( Name='pillar', Epsilon=df.iloc[index, df.columns.get_loc('epsilon_pillar')])
     S.SetMaterial( Name='substrate', Epsilon=df.iloc[index, df.columns.get_loc('epsilon_substrate')])
     # Front illuminated: Illuminated from air
     # S.AddLayer(Name = 'AirAbove', Thickness = 0, Material = 'Air')
@@ -231,8 +232,8 @@ def get_fields(df, x,y,z, index=0):
     Dx = df.iloc[index, df.columns.get_loc('Dx')]
     Dy = df.iloc[index, df.columns.get_loc('Dy')]
     ###################################################################
-    S.SetRegionEllipse(Layer='MetaLayer', Material='a_Si', Center=(0,0), Angle=df.iloc[index,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
-    # S.SetRegionRectangle(Layer='MetaLayer', Material='a_Si', Center=(0,0), Angle=df.iloc[index,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
+    # S.SetRegionEllipse(Layer='MetaLayer', Material='pillar', Center=(0,0), Angle=df.iloc[index,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
+    S.SetRegionRectangle(Layer='MetaLayer', Material='pillar', Center=(0,0), Angle=df.iloc[index,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
     ###################################################################
     E = np.zeros((len(x),3), dtype=np.complex)
     H = np.zeros((len(x),3), dtype=np.complex)

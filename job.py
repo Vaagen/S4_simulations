@@ -15,20 +15,20 @@ def main(tot_num_processes=1, process_num=1):
     print(df)
     print(df.loc[:,['Dx','epsilon_pillar', 'z_Pillar']])
     ###################################################
-    # pd.options.mode.chained_assignment = None  # default='warn'
-    # if(tot_num_processes == 1):
-    #     df = run_sim(df)
-    #     # df = run_sim_intermediate_output(df,indexes=None,divisions=10, output_filename=output_filename)
-    #     df.to_hdf(output_filename +'.h5', key='df', append=True)
-    #     # print(df.loc[:,['tss_0','rss_0','phi_tss_0']])
-    # else:
-    #     run_sim_parallel(df,tot_num_processes=tot_num_processes, process_num=process_num, output_filename = output_filename +'_'+ str(process_num))
+    pd.options.mode.chained_assignment = None  # default='warn'
+    if(tot_num_processes == 1):
+        df = run_sim(df)
+        # df = run_sim_intermediate_output(df,indexes=None,divisions=10, output_filename=output_filename)
+        df.to_hdf(output_filename +'.h5', key='df', append=True)
+        # print(df.loc[:,['tss_0','rss_0','phi_tss_0']])
+    else:
+        run_sim_parallel(df,tot_num_processes=tot_num_processes, process_num=process_num, output_filename = output_filename +'_'+ str(process_num))
     # ###################################################
-    # print('NB:  ', df.loc[0,'NumBasis'])
-    # print('Dx:  ', df.loc[0,'Dx'])
-    # print('Dy:  ', df.loc[0,'Dy'])
-    # print('T:   ', df.loc[0,'tss_0']**2*np.sqrt(df.loc[0,'epsilon_substrate']))
-    # print('Phi: ', (-df.loc[0,'phi_tss_0'] + np.pi)/(2*np.pi))
+    print('NB:  ', df.loc[0,'NumBasis'])
+    print('Dx:  ', df.loc[0,'Dx'])
+    print('Dy:  ', df.loc[0,'Dy'])
+    print('T:   ', df.loc[0,'tss_0']**2*np.sqrt(df.loc[0,'epsilon_substrate']))
+    print('Phi: ', (-df.loc[0,'phi_tss_0'] + np.pi)/(2*np.pi))
     ###################################################
 
 
