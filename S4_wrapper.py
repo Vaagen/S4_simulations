@@ -13,15 +13,16 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     # Use length micrometers
     # Wavelength
     wl = 0.915
-    # Height of pillar
-    z_Pillar = 0.300
+    wl_start = 0.343
+    wl_stop   = 0.743
+    wl_steps = 10
     # Pillar orientation
     theta = 0.0 # Degrees
     # Epsilon
     # epsilon_a_Si = 3.56**2.
-    # epsilon_fused_SiO2 = 1.45**2.
-    epsilon_a_Si = 13.921350491788342+0.17024349284921841j
-    epsilon_fused_SiO2 = 2.121673706817246
+    # epsilon_substrate = 1.45**2.
+    epsilon_pillar = 13.921350491788342+0.17024349284921841j
+    epsilon_substrate = 2.121673706817246
     # Incoming amplitudes
     sAmplitude = 1.0
     pAmplitude = 1e-15
@@ -35,33 +36,57 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     y_start = 0.065 #0.2 #0.05
     x_stop  = 0.440 #0.1 #0.44 #0.4
     y_stop  = 0.440 #0.2 #0.44 #0.4
+    # Height of pillar
+    z_Pillar = 0.300
+    z_Pillar_start = 0.1
+    z_Pillar_stop   = 0.5
+    z_Pillar_steps = 5
     ################################## Unit cell
     # Size of cell
     a = 0.65 #0.48
     b = a # Length of second lattice vector
     # # Rectangular basis
-    # angle_basis_vectors = np.pi/180 * 90
-    # angle_shift_basis   = np.pi/180 * 0
-    # # Hexagonal basis
-    angle_basis_vectors = np.pi/180 * 120
+    angle_basis_vectors = np.pi/180 * 90
     angle_shift_basis   = np.pi/180 * 0
+    # # Hexagonal basis
+    # angle_basis_vectors = np.pi/180 * 120
+    # angle_shift_basis   = np.pi/180 * 0
     ####################################################################
-    x_values = np.linspace(x_start,x_stop, x_steps)
-    y_values = np.linspace(y_start,y_stop, y_steps)
-    x_mesh, y_mesh = np.meshgrid(x_values, y_values)
-    x_mesh = np.ndarray.flatten(x_mesh)
-    y_mesh = np.ndarray.flatten(y_mesh)
+    # Set up variables to iterate
+    ############ For using the mesh of x and y
+    # x_values = np.linspace(x_start,x_stop, x_steps)
+    # y_values = np.linspace(y_start,y_stop, y_steps)
+    # x_mesh, y_mesh = np.meshgrid(x_values, y_values)
+    # x_mesh = np.ndarray.flatten(x_mesh)
+    # y_mesh = np.ndarray.flatten(y_mesh)
+    # Dx = x_mesh
+    # Dy = y_mesh
+    ############ For using each x/y value once
+    # x_values = np.linspace(x_start,x_stop, x_steps)
+    # y_values = np.linspace(y_start,y_stop, y_steps)
+    # x_mesh, y_mesh = np.meshgrid(x_values, y_values)
+    # x_mesh = np.ndarray.flatten(x_mesh)
+    # y_mesh = np.ndarray.flatten(y_mesh)
+    # Dx = x_values
+    # Dy = y_values
+    ########### For y = x and changing wavelength and height
+    wl_values = np.linspace(wl_start, wl_stop, wl_steps)
+    x_values = np.linspace(x_start, x_stop, x_steps)
+    z_Pillar_values = np.linspace(z_Pillar_start, z_Pillar_stop, z_Pillar_steps)
+    wl_mesh, x_mesh, z_Pillar_mesh = np.meshgrid(wl_values, x_values, z_Pillar_values)
+    wl = np.ndarray.flatten(wl_mesh)
+    Dx = Dy = np.ndarray.flatten(x_mesh)
+    z_Pillar = np.ndarray.flatten(z_Pillar_mesh)
+    ############ Setup epsilon_pillar
+    aTi_epsilon = np.loadtxt('refractive_indexes/epsilon_a-TiO2_onSiO2cSi_Tab.dat')
+    aTi_epsilon[:,0] = aTi_epsilon[:,0]*1e-4
+    e1_aTi_wl = np.interp(wl,aTi_epsilon[:,0],aTi_epsilon[:,1])
+    e2_aTi_wl = np.interp(wl,aTi_epsilon[:,0],aTi_epsilon[:,2])
+    epsilon_pillar = e1_aTi_wl + 1j*e2_aTi_wl
 
-    # For using the mesh of x and y
-    # Dx_values = x_mesh
-    # Dy_values = y_mesh
-    # For using each x/y value once
-    Dx_values = x_values
-    Dy_values = y_values
-
-    df = pd.DataFrame(data={'NumBasis':NumBasis, 'Dx':Dx_values, 'Dy':Dy_values, 'z_Pillar':z_Pillar,
+    df = pd.DataFrame(data={'NumBasis':NumBasis, 'Dx':Dx, 'Dy':Dy, 'z_Pillar':z_Pillar,
         'theta':theta,'wl':wl,'a':a,'b':b,'angle_basis_vectors':angle_basis_vectors,'angle_shift_basis':angle_shift_basis,
-        'epsilon_a_Si':epsilon_a_Si,'epsilon_fused_SiO2':epsilon_fused_SiO2,
+        'epsilon_pillar':epsilon_pillar,'epsilon_substrate':epsilon_substrate,
         'sAmplitude':sAmplitude,'pAmplitude':pAmplitude,'theta_incidence':theta_incidence,'phi_incidence':phi_incidence,
         'tss_0':np.nan,
         'rss_0':np.nan,
@@ -94,14 +119,14 @@ def setup_s4_instance(df, index):
     )
     ####################### Setup material and exitation.
     S.SetMaterial( Name='Air', Epsilon=1)
-    S.SetMaterial( Name='a_Si', Epsilon=df.iloc[i, df.columns.get_loc('epsilon_a_Si')])
-    S.SetMaterial( Name='fused_SiO2', Epsilon=df.iloc[i, df.columns.get_loc('epsilon_fused_SiO2')])
+    S.SetMaterial( Name='pillar', Epsilon=df.iloc[i, df.columns.get_loc('epsilon_pillar')])
+    S.SetMaterial( Name='substrate', Epsilon=df.iloc[i, df.columns.get_loc('epsilon_substrate')])
     # Front illuminated: Illuminated from air
     # S.AddLayer(Name = 'AirAbove', Thickness = 0, Material = 'Air')
     # S.AddLayer(Name = 'MetaLayer', Thickness = df.iloc[i, df.columns.get_loc('z_Pillar')], Material = 'Air')
-    # S.AddLayer(Name = 'Substrate', Thickness = 0, Material = 'fused_SiO2')
+    # S.AddLayer(Name = 'Substrate', Thickness = 0, Material = 'substrate')
     # Back illuminated: Illuminated from substrate
-    S.AddLayer(Name = 'Substrate', Thickness = 0, Material = 'fused_SiO2')
+    S.AddLayer(Name = 'Substrate', Thickness = 0, Material = 'substrate')
     S.AddLayer(Name = 'MetaLayer', Thickness = df.iloc[i, df.columns.get_loc('z_Pillar')], Material = 'Air')
     S.AddLayer(Name = 'AirAbove', Thickness = 0, Material = 'Air')
     #
@@ -127,24 +152,24 @@ def run_sim(df, indexes=np.array([])):
         Dy = df.iloc[i, df.columns.get_loc('Dy')]
         ###################################################################
         S.RemoveLayerRegions(Layer='MetaLayer')
-        S.SetRegionEllipse(Layer='MetaLayer', Material='a_Si', Center=(0,0), Angle=df.iloc[i,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
-        # S.SetRegionRectangle(Layer='MetaLayer', Material='a_Si', Center=(0,0), Angle=df.iloc[i,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
+        S.SetRegionEllipse(Layer='MetaLayer', Material='pillar', Center=(0,0), Angle=df.iloc[i,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
+        # S.SetRegionRectangle(Layer='MetaLayer', Material='pillar', Center=(0,0), Angle=df.iloc[i,df.columns.get_loc('theta')], Halfwidths=(Dx/2.0,Dy/2.0))
 
-        epsilon_fused_SiO2 = df.iloc[i, df.columns.get_loc('epsilon_fused_SiO2')]
+        epsilon_substrate = df.iloc[i, df.columns.get_loc('epsilon_substrate')]
 
         (forw_Amp_Substrate,back_Amp_Substrate) = S.GetAmplitudes(Layer = 'Substrate', zOffset = 0)
         (forw_Amp_Air,back_Amp_Air) = S.GetAmplitudes(Layer = 'AirAbove', zOffset = 0)
 
         # Front illuminated
         # if np.abs(df.iloc[i,df.columns.get_loc('sAmplitude')])>1e-8:
-        #     df.iloc[i, df.columns.get_loc('tss_0')] = np.abs(forw_Amp_Substrate[0]/np.sqrt(epsilon_fused_SiO2)/forw_Amp_Air[0])
+        #     df.iloc[i, df.columns.get_loc('tss_0')] = np.abs(forw_Amp_Substrate[0]/np.sqrt(epsilon_substrate)/forw_Amp_Air[0])
         #     df.iloc[i, df.columns.get_loc('rss_0')] = np.abs(back_Amp_Air[0]/forw_Amp_Air[0])
-        #     df.iloc[i, df.columns.get_loc('phi_tss_0')] = np.angle(forw_Amp_Air[0]/forw_Amp_Substrate[0]*np.sqrt(epsilon_fused_SiO2))
+        #     df.iloc[i, df.columns.get_loc('phi_tss_0')] = np.angle(forw_Amp_Air[0]/forw_Amp_Substrate[0]*np.sqrt(epsilon_substrate))
         # Back illuminated
         if np.abs(df.iloc[i, df.columns.get_loc('sAmplitude')])>1e-8:
             df.iloc[i, df.columns.get_loc('tss_0')] = np.abs(forw_Amp_Air[0]/forw_Amp_Substrate[0])
             df.iloc[i, df.columns.get_loc('rss_0')] = np.abs(back_Amp_Substrate[0]/forw_Amp_Substrate[0])
-            df.iloc[i, df.columns.get_loc('phi_tss_0')] = np.angle(forw_Amp_Substrate[0]/np.sqrt(epsilon_fused_SiO2)/forw_Amp_Air[0])
+            df.iloc[i, df.columns.get_loc('phi_tss_0')] = np.angle(forw_Amp_Substrate[0]/np.sqrt(epsilon_substrate)/forw_Amp_Air[0])
     S.GetFieldsOnGrid(z = 0.2, NumSamples=(4,4), Format = 'FileWrite', BaseFilename = 'field')
     return df
 
@@ -188,13 +213,13 @@ def get_fields(df, x,y,z, index=0):
     ####################### Setup material and exitation.
     S.SetMaterial( Name='Air', Epsilon=1)
     S.SetMaterial( Name='a_Si', Epsilon=df.iloc[index, df.columns.get_loc('epsilon_a_Si')])
-    S.SetMaterial( Name='fused_SiO2', Epsilon=df.iloc[index, df.columns.get_loc('epsilon_fused_SiO2')])
+    S.SetMaterial( Name='substrate', Epsilon=df.iloc[index, df.columns.get_loc('epsilon_substrate')])
     # Front illuminated: Illuminated from air
     # S.AddLayer(Name = 'AirAbove', Thickness = 0, Material = 'Air')
     # S.AddLayer(Name = 'MetaLayer', Thickness = df.iloc[0, df.columns.get_loc('z_Pillar')], Material = 'Air')
-    # S.AddLayer(Name = 'Substrate', Thickness = 0, Material = 'fused_SiO2')
+    # S.AddLayer(Name = 'Substrate', Thickness = 0, Material = 'substrate')
     # Back illuminated: Illuminated from substrate
-    S.AddLayer(Name = 'Substrate', Thickness = 0, Material = 'fused_SiO2')
+    S.AddLayer(Name = 'Substrate', Thickness = 0, Material = 'substrate')
     S.AddLayer(Name = 'MetaLayer', Thickness = df.iloc[index, df.columns.get_loc('z_Pillar')], Material = 'Air')
     S.AddLayer(Name = 'AirAbove', Thickness = 0, Material = 'Air')
     #
