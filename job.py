@@ -2,18 +2,16 @@ import numpy as np
 import pandas as pd
 import S4
 from S4_wrapper import *
-from S4_plotter import *
+# from S4_plotter import *
 import argparse
 
 def main(tot_num_processes=1, process_num=1):
     NumBasis = 300
     x_steps = 100
     y_steps = 1
-    output_filename = 'output/test/test'
+    output_filename = 'output/capasso_rect_NB300_scan3/capasso_rect_NB300_scan3'
     df = setup_simulation(NumBasis, x_steps, y_steps)
 
-    print(df)
-    print(df.loc[:,['Dx','epsilon_pillar', 'z_Pillar']])
     ###################################################
     pd.options.mode.chained_assignment = None  # default='warn'
     if(tot_num_processes == 1):
@@ -24,12 +22,12 @@ def main(tot_num_processes=1, process_num=1):
     else:
         run_sim_parallel(df,tot_num_processes=tot_num_processes, process_num=process_num, output_filename = output_filename +'_'+ str(process_num))
     # ###################################################
-    print('NB:  ', df.loc[0,'NumBasis'])
-    print('Dx:  ', df.loc[0,'Dx'])
-    print('Dy:  ', df.loc[0,'Dy'])
-    print('T:   ', df.loc[0,'tss_0']**2*np.sqrt(df.loc[0,'epsilon_substrate']))
-    print('Phi: ', (-df.loc[0,'phi_tss_0'] + np.pi)/(2*np.pi))
-    ###################################################
+    # print('NB:  ', df.loc[0,'NumBasis'])
+    # print('Dx:  ', df.loc[0,'Dx'])
+    # print('Dy:  ', df.loc[0,'Dy'])
+    # print('T:   ', df.loc[0,'tss_0']**2*np.sqrt(df.loc[0,'epsilon_substrate']))
+    # print('Phi: ', (-df.loc[0,'phi_tss_0'] + np.pi)/(2*np.pi))
+    # ###################################################
 
 
 

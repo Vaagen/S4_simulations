@@ -13,9 +13,9 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     # Use length micrometers
     ############# Wavelength ####
     wl = 0.915
-    wl_start = 0.343
-    wl_stop   = 0.743
-    wl_steps = 10
+    wl_start = 0.543
+    wl_stop   = 0.543
+    wl_steps = 1
     #############################
     # Pillar orientation
     theta = 0.0 # Degrees
@@ -33,18 +33,22 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     ################################## Geometries
     x_steps = x_steps
     y_steps = y_steps
-    x_start = 0.065 #0.05
-    y_start = 0.065 #0.2 #0.05
-    x_stop  = 0.440 #0.1 #0.44 #0.4
-    y_stop  = 0.440 #0.2 #0.44 #0.4
+    x_start = 0.040 #0.05
+    y_start = 0.040 #0.2 #0.05
+    x_stop  = 0.240 #0.1 #0.44 #0.4
+    y_stop  = 0.240 #0.2 #0.44 #0.4
     ############### Height of pillar #
     z_Pillar = 0.300
-    z_Pillar_start = 0.1
-    z_Pillar_stop   = 0.5
-    z_Pillar_steps = 5
+    z_Pillar_start = 0.5
+    z_Pillar_stop  = 0.5
+    z_Pillar_steps = 1
     ################################## Unit cell
     # Size of cell
-    a = 0.65 #0.48
+    a_start = 0.340
+    a_stop  = 0.500
+    a_steps = 5
+    #########
+    a = 0.420 #0.48
     b = a # Length of second lattice vector
     # # Rectangular basis
     angle_basis_vectors = np.pi/180 * 90
@@ -71,13 +75,20 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     # Dx = x_values
     # Dy = y_values
     ########### For y = x and changing wavelength and height
-    wl_values = np.linspace(wl_start, wl_stop, wl_steps)
+    # wl_values = np.linspace(wl_start, wl_stop, wl_steps)
+    # x_values = np.linspace(x_start, x_stop, x_steps)
+    # z_Pillar_values = np.linspace(z_Pillar_start, z_Pillar_stop, z_Pillar_steps)
+    # wl_mesh, x_mesh, z_Pillar_mesh = np.meshgrid(wl_values, x_values, z_Pillar_values)
+    # wl = np.ndarray.flatten(wl_mesh)
+    # Dx = Dy = np.ndarray.flatten(x_mesh)
+    # z_Pillar = np.ndarray.flatten(z_Pillar_mesh)
+    ############ For y = x and changing lattice constant
     x_values = np.linspace(x_start, x_stop, x_steps)
-    z_Pillar_values = np.linspace(z_Pillar_start, z_Pillar_stop, z_Pillar_steps)
-    wl_mesh, x_mesh, z_Pillar_mesh = np.meshgrid(wl_values, x_values, z_Pillar_values)
-    wl = np.ndarray.flatten(wl_mesh)
+    a_values = np.linspace(a_start,a_stop, a_steps)
+    a_mesh, x_mesh = np.meshgrid(a_values, x_values)
+    a = np.ndarray.flatten(a_mesh)
+    b = a
     Dx = Dy = np.ndarray.flatten(x_mesh)
-    z_Pillar = np.ndarray.flatten(z_Pillar_mesh)
     ############ Setup epsilon_pillar
     aTi_epsilon = np.loadtxt('refractive_indexes/epsilon_a-TiO2_onSiO2cSi_Tab.dat')
     aTi_epsilon[:,0] = aTi_epsilon[:,0]*1e-4
