@@ -1,14 +1,14 @@
 #!/bin/sh
 #SBATCH --partition=WORKQ
-#SBATCH --time=04:00:00
+#SBATCH --time=6:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=1000
 #SBATCH --job-name="S4_NB300"
-#SBATCH --output="output/arbabi_ellipse_NB300_76x76_h500/arbabi_ellipse_NB300_76x76_h500-%A_%a.out"
+#SBATCH --output="output/capasso_rect_NB300_scan4/capasso_rect_NB300_scan4-%A_%a.out"
 #SBATCH --mail-user=pcthrane@stud.ntnu.no
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-9%5
+#SBATCH --array=0-39%20
  
 WORKDIR=${SLURM_SUBMIT_DIR}
 cd ${WORKDIR}
@@ -29,5 +29,5 @@ module load Python/3.5.1
 source /lustre1/work/pcthrane/pythonenvs/S4_environment/bin/activate
 
 #Run script
-time srun python job.py -p 10 -n $SLURM_ARRAY_TASK_ID
+time srun python job.py -p 40 -n $SLURM_ARRAY_TASK_ID
 #time srun python job.py -p 1 -n 0
