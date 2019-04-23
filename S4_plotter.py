@@ -10,21 +10,30 @@ import matplotlib.pyplot as plt
 
 from S4_wrapper import get_fields
 
-def get_image_matrices(df, x_column, y_column, z_column):
-    # Currently assumes square domain in x and y.
-    data_m = df.loc[:,[x_column, y_column, z_column]].values
-    data_x = np.flip(np.reshape(data_m[:,0], (int(np.sqrt(len(data_m[:,0]))),int(np.sqrt(len(data_m[:,0])))),order='C'),axis=0)
-    data_y = np.flip(np.reshape(data_m[:,1], (int(np.sqrt(len(data_m[:,1]))),int(np.sqrt(len(data_m[:,1])))),order='C'),axis=0)
-    data_z = np.flip(np.reshape(data_m[:,2], (int(np.sqrt(len(data_m[:,2]))),int(np.sqrt(len(data_m[:,2])))),order='C'),axis=0)
+def get_image_matrices(df, x_column, y_column, z_column, x_dim=0, y_dim=0):
+    # If x_dim and y_dim are not supplied: assumes square domain in x and y.
+    if x_dim == 0 and y_dim == 0:
+        data_m = df.loc[:,[x_column, y_column, z_column]].values
+        data_x = np.flip(np.reshape(data_m[:,0], (int(np.sqrt(len(data_m[:,0]))),int(np.sqrt(len(data_m[:,0])))),order='C'),axis=0)
+        data_y = np.flip(np.reshape(data_m[:,1], (int(np.sqrt(len(data_m[:,1]))),int(np.sqrt(len(data_m[:,1])))),order='C'),axis=0)
+        data_z = np.flip(np.reshape(data_m[:,2], (int(np.sqrt(len(data_m[:,2]))),int(np.sqrt(len(data_m[:,2])))),order='C'),axis=0)
+    else:
+        data_m = df.loc[:,[x_column, y_column, z_column]].values
+        data_x = np.flip(np.reshape(data_m[:,0], (x_dim,y_dim),order='C'),axis=0)
+        data_y = np.flip(np.reshape(data_m[:,1], (x_dim,y_dim),order='C'),axis=0)
+        data_z = np.flip(np.reshape(data_m[:,2], (x_dim,y_dim),order='C'),axis=0)
     return data_x, data_y, data_z
 
-def plot_image(df, x_column, y_column, z_column, cmap='RdBu_r',limit=[0,1]):
-    data_x,data_y,data_z = get_image_matrices(df, x_column, y_column, z_column)
+def plot_image(df, x_column, y_column, z_column, cmap='RdBu_r',limit=[0,1], x_dim=0, y_dim=0):
+    data_x,data_y,data_z = get_image_matrices(df, x_column, y_column, z_column, x_dim=x_dim, y_dim=y_dim)
     ## Using matplotlib
     fig, axs = plt.subplots(1, 1)
     ax = axs
     c = ax.pcolor(data_x, data_y, data_z, cmap=cmap,vmin=limit[0],vmax=limit[1])
     fig.colorbar(c, ax=ax)
+    ax.set_title(z_column)
+    ax.set_xlabel(x_column)
+    ax.set_ylabel(y_column)
 
 def plot_image_interpolate(df, x_column, y_column, z_column, cmap='RdBu_r',limit=[0,1]):
     data_x,data_y,data_z = get_image_matrices(df, x_column, y_column, z_column)
