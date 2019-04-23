@@ -13,9 +13,9 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     # Use length micrometers
     ############# Wavelength ####
     wl = 0.915
-    wl_start = 0.343
-    wl_stop   = 0.743
-    wl_steps = 10
+    wl_start = 0.450
+    wl_stop   = 0.750
+    wl_steps = 13
     #############################
     # Pillar orientation
     theta = 0.0 # Degrees
@@ -33,18 +33,18 @@ def setup_simulation(NumBasis, x_steps, y_steps):
     ################################## Geometries
     x_steps = x_steps
     y_steps = y_steps
-    x_start = 0.065 #0.05
-    y_start = 0.065 #0.2 #0.05
-    x_stop  = 0.440 #0.1 #0.44 #0.4
-    y_stop  = 0.440 #0.2 #0.44 #0.4
+    x_start = 0.040 #0.065 #0.05
+    y_start = 0.040 #0.065 #0.2 #0.05
+    x_stop  = 0.280 #0.440 #0.1 #0.44 #0.4
+    y_stop  = 0.280 #0.440 #0.2 #0.44 #0.4
     ############### Height of pillar #
     z_Pillar = 0.300
-    z_Pillar_start = 0.1
-    z_Pillar_stop   = 0.5
-    z_Pillar_steps = 5
+    z_Pillar_start = 0.500
+    z_Pillar_stop   = 0.700
+    z_Pillar_steps = 9
     ################################## Unit cell
     # Size of cell
-    a = 0.65 #0.48
+    a = 0.420 #0.48
     b = a # Length of second lattice vector
     # # Rectangular basis
     angle_basis_vectors = np.pi/180 * 90
